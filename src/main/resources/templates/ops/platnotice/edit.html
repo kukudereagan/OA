@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" th:href="@{/lib/lui/css/layui.css}">
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+<div class="layui-container">
+<div th:html="${notice.id}"></div>
+<div th:if="${edit}">
+</div>
+<form id="noticeForm" class="layui-form" action="edit" method="post">
+    <input type="hidden" name="id" th:value="${notice.id}"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">图片</label>
+        <div class="layui-input-block">
+            <div class="layui-upload">
+                <button type="button" class="layui-btn" id="test1">选择图片</button>
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img" name="imagePath" src="/demo/img/3.png">
+                    <p id="demoText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">标题</label>
+        <div th:if="${edit}" class="layui-input-block">
+            <input  type="text" name="title" lay-verify="title" autocomplete="off" th:value="${notice.title}" placeholder="请输入标题" class="layui-input">
+        </div>
+        <div class="layui-form-mid" th:unless="${edit}" th:text="${notice.title}"></div>
+    </div>
+    
+    <div class="layui-form-item">
+        <label class="layui-form-label">简介</label>
+        <div th:if="${edit}" class="layui-input-block">
+            <input  type="text" name="introduce" lay-verify="title" autocomplete="off" th:value="${notice.introduce}" placeholder="请输入简介" class="layui-input">
+        </div>
+        <div class="layui-form-mid" th:unless="${edit}" th:text="${notice.introduce}"></div>
+    </div>
+       
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">内容</label>
+        <div th:if="${edit}" class="layui-input-block">
+            <textarea class="layui-textarea" name="content" th:text="${notice.content}">
+            </textarea>
+        </div>
+        <div class="layui-form-mid" th:unless="${edit}" th:text="${notice.content}"></div>
+    </div>
+
+</form>
+</div>
+<script th:src="@{/lib/jquery/jquery.js}"></script>
+<script th:src="@{/lib/jquery/jquery.forms.js}"></script>
+<script th:src="@{/lib/lui/layui.all.js}"></script>
+<script type="text/javascript">
+    $.fn.serializeObject = function()
+    {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name] !== undefined) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+</script>
+<script type="text/javascript">
+   
+    //layui.layedit.build('LAY_demo_editor');
+
+    function doSave(fn){
+
+        var data = $("#noticeForm").serializeObject();
+
+        $.ajax("edit",{
+            method:"post",
+            contentType:"application/json; charset=utf-8",
+            data:JSON.stringify(data),
+            success:function(data) {
+                if(data) {
+                    parent.tips(1, "保存成功！");
+                    fn.call();
+                }else{
+                    parent.tips(0, "保存信息失败！");
+                }
+            },
+            error:function(e){
+                parent.tips(0,e);
+            }
+        });
+
+    }
+
+</script>
+
+</body>
+</html>

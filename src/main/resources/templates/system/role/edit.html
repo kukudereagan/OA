@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="stylesheet" th:href="@{/lib/lui/css/layui.css}">
+<!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+	<div class="layui-container" style="margin-top: 20px">
+        <div th:html="${sysRole.id}"></div>
+        <div th:if="${edit}"></div>
+        <form id="sysRoleForm" class="layui-form" action="edit" method="post">
+            <input type="hidden" name="id" th:value="${sysRole.id}" />
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">角色</label>
+                <div th:if="${edit}" class="layui-input-block">
+                    <input type="text" name="role" lay-verify="title"
+                           autocomplete="off" th:value="${sysRole.role}" placeholder="请输入角色名称"
+                           class="layui-input">
+                </div>
+                <div class="layui-form-mid" th:unless="${edit}"  th:text="${sysRole.role}"></div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">角色描述</label>
+                <div th:if="${edit}" class="layui-input-block">
+                    <input type="text" name="description" lay-verify="title"
+                           autocomplete="off" th:value="${sysRole.description}"
+                           placeholder="请输入角色描述" class="layui-input">
+                </div>
+                <div class="layui-form-mid" th:unless="${edit}"  th:text="${sysRole.description}"></div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">是否启用</label>
+                <div th:if="${edit}" class="layui-input-block">
+                    <select name="available" lay-filter="aihao" >
+                        <option value=""></option>
+                        <option value="true" th:selected="${sysRole.available=='true'}?selected">启用</option>
+                        <option value="false" th:selected="${sysRole.available=='false'}?selected">未启用</option>
+                    </select>
+                </div>
+                <div class="layui-form-mid available" th:unless="${edit}" th:text="${sysRole.available}"></div>
+            </div>
+
+        </form>
+	</div>
+	<script th:src="@{/lib/jquery/jquery.js}"></script>
+	<script th:src="@{/lib/jquery/jquery.forms.js}"></script>
+	<script th:src="@{/lib/lui/layui.all.js}"></script>
+	<script type="text/javascript">
+		$.fn.serializeObject = function() {
+			var o = {};
+			var a = this.serializeArray();
+			$.each(a, function() {
+				if (o[this.name] !== undefined) {
+					if (!o[this.name].push) {
+						o[this.name] = [ o[this.name] ];
+					}
+					o[this.name].push(this.value || '');
+				} else {
+					o[this.name] = this.value || '';
+				}
+			});
+			return o;
+		};
+	</script>
+	<script type="text/javascript">
+		layui.laydate.render({
+			elem : '#date'
+		});
+		//layui.layedit.build('LAY_demo_editor');
+
+		function doSave(fn) {
+
+			var data = $("#sysRoleForm").serializeObject();
+
+			$.ajax("edit", {
+				method : "post",
+				contentType : "application/json; charset=utf-8",
+				data : JSON.stringify(data),
+				success : function(data) {
+					if (data) {
+						parent.tips(1, "保存成功！");
+						fn.call();
+					} else {
+						parent.tips(0, "保存信息失败！");
+					}
+				},
+				error : function(e) {
+					parent.tips(0, e);
+				}
+			});
+
+		}
+	</script>
+<script>
+    $(function(){
+        var available=$("div.available").html().trim();
+        if(available=='true'){
+            $("div.available").html('启用');
+        }else if(available=='false'){
+            $("div.available").html('未启用');
+        }
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.oa.mapper.TeacherApiMapper">
+
+
+	<resultMap id="teacherApi" type="teacherApiModel">
+		<id column="id" property="id" />
+	</resultMap>
+
+	<select id="getHomePageTeacherApis" resultMap="teacherApi">
+		select c2.id,c2.name,c2.teaching_age,c2.image_path as avator
+		,c3.id as school_id,c3.name as school_name,c2.tag
+		,(SELECT GROUP_CONCAT(`name`,'') FROM tag WHERE FIND_IN_SET(id,c2.tag))as tags
+		from common c2 inner join common c3
+		on c2.belong_id=c3.id
+	  	WHERE c2.type=3 and c2.show_homepage=1
+	</select>
+
+	<select id="getTeacherApis" resultMap="teacherApi">
+		select c2.id,c2.name,c2.teaching_age,c2.image_path as avator
+		,c3.id as school_id,c3.name as school_name,c2.tag
+		,(SELECT GROUP_CONCAT(`name`,'') FROM tag WHERE FIND_IN_SET(id,c2.tag))as tags
+		from common c2 inner join common c3
+		on c2.belong_id=c3.id 
+		WHERE c2.type=3
+	</select>
+
+	<select id="getTeacherApi" resultMap="teacherApi">
+		select c2.id,c2.name,c2.teaching_age,c2.image_path as avator
+		,c3.id as school_id,c3.name as school_name,c2.tag
+		,(SELECT GROUP_CONCAT(`name`,'') FROM tag WHERE FIND_IN_SET(id,c2.tag))as tags
+		,c2.introduce,c2.address
+		from common c2 inner join common c3
+		on c2.belong_id=c3.id where c2.id=#{id}
+	</select>
+</mapper>

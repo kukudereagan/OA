@@ -1,0 +1,24 @@
+<div class="layui-side-scroll" xmlns:th="http://www.w3.org/1999/xhtml">
+    <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+    <ul class="layui-nav layui-nav-tree">
+        <!--一级菜单-->
+        <li class="layui-nav-item layui-nav-itemed" th:each="menu:${menus}">
+            <a class="" href="javascript:;" th:id="${menu.id}" th:text="${menu.name}"></a>
+            <dl class="layui-nav-child" th:if="${not #lists.isEmpty(menu.children)}">
+                <dd th:each="child : ${menu.children}" th:id="${child.id}">
+                    <a th:href="|javascript:addTab('${child.id}','${child.name}','${child.url}');|" th:text="${child.name}">菜单</a></dd>
+            </dl>
+        </li>
+        <!--
+        <li class="layui-nav-item" th:remove="all">
+            <a href="javascript:;">驾校管理</a>
+            <dl class="layui-nav-child">
+                <dd><a href="javascript:;">车辆管理</a></dd>
+                <dd><a href="javascript:;">考试时间</a></dd>
+                <dd><a href="">安排</a></dd>
+            </dl>
+        </li>
+        -->
+    </ul>
+
+</div>

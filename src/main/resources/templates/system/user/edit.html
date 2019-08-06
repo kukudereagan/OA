@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="stylesheet" th:href="@{/lib/lui/css/layui.css}">
+<!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief" style="margin-top: -1px">
+            <ul class="layui-tab-title ">
+                <li lay-id="userTab" class="layui-this">用户管理</li>
+                <li lay-id="roleTab" id="roleTab">角色分配</li>
+            </ul>
+            <div class="layui-tab-content">
+                <!--用户管理页 -->
+                <div class="layui-tab-item layui-show">
+                    <div th:html="${sysUser.id}"></div>
+                    <div th:if="${edit}"></div>
+                    <form id="sysUserForm" class="layui-form" action="edit" method="post">
+                        <input type="hidden" id="userId" name="id" th:value="${sysUser.id}" />
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">账户</label>
+                            <div th:if="${edit}" class="layui-input-block">
+                                <input type="text" name="userName" lay-verify="title"
+                                       autocomplete="off" th:value="${sysUser.userName}" placeholder="请输入账户"
+                                       class="layui-input"/>
+                            </div>
+                            <div class="layui-form-mid" th:unless="${edit}"
+                                 th:text="${sysUser.userName}"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label th:if="${edit}" class="layui-form-label">密码</label>
+                            <div th:if="${edit}" class="layui-input-block">
+                                <input type="password" name="password" lay-verify="title"
+                                       autocomplete="off" th:value="${sysUser.password}" placeholder="请输入密码"
+                                       class="layui-input"/>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">姓名</label>
+                            <div th:if="${edit}" class="layui-input-block">
+                                <input type="text" name="nickName" lay-verify="title"
+                                       autocomplete="off" th:value="${sysUser.nickName}"
+                                       placeholder="请输入姓名" class="layui-input"/>
+                            </div>
+                            <div class="layui-form-mid" th:unless="${edit}"  th:text="${sysUser.nickName}"></div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否启用</label>
+                            <div th:if="${edit}" class="layui-input-block">
+                                <select name="state" lay-filter="aihao" >
+                                    <option value=""></option>
+                                    <option value="1" th:selected="${sysUser.state==1}?selected">启用</option>
+                                    <option value="0" th:selected="${sysUser.state==0}?selected">未启用</option>
+                                </select>
+                            </div>
+                            <div class="layui-form-mid state" th:unless="${edit}" th:text="${sysUser.state}"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">状态</label>
+                            <div th:if="${edit}" class="layui-input-block">
+                                <select name="status" lay-filter="aihao" >
+                                    <option value=""></option>
+                                    <option value="10" th:selected="${sysUser.status==10}?selected">在职</option>
+                                    <option value="0" th:selected="${sysUser.status==0}?selected">离职</option>
+                                    <option value="1" th:selected="${sysUser.status==1}?selected">公出</option>
+                                    <option value="2" th:selected="${sysUser.status==2}?selected">出差</option>
+                                    <option value="3" th:selected="${sysUser.status==3}?selected">事假</option>
+                                    <option value="4" th:selected="${sysUser.status==4}?selected">病假</option>
+                                    <option value="5" th:selected="${sysUser.status==5}?selected">其他假</option>
+                                </select>
+                            </div>
+                            <div class="layui-form-mid status" th:unless="${edit}" th:text="${sysUser.status}"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">过期日期</label>
+                            <div th:if="${edit}"  class="layui-input-inline">
+                                <input type="text" name="expiretime" id="date" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input" th:value="${sysUser.expiretime}"/>
+                            </div>
+                            <div class="layui-form-mid" th:unless="${edit}" th:text="${sysUser.expiretime}"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="layui-tab-item">
+                    <form id="sysUserRoleForm" class="layui-form" action="editRole" method="post">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">角色</label>
+                        <div th:if="${edit}" class="layui-input-block" >
+                            <input type="checkbox" name="" lay-skin="primary"  th:each="allRole,obj:${sysRoleList}" th:title="${allRole.role}" th:value="${allRole.id}" th:checked="${allRole.checked}"/>
+                        </div>
+                        <div class="layui-input-block" th:unless="${edit}"  >
+                            <input type="checkbox" name="" lay-skin="primary" th:each="role:${sysUser.roles}" th:title="${role.role}" checked="" disabled=""/>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+
+	<script th:src="@{/lib/jquery/jquery.js}"></script>
+	<script th:src="@{/lib/jquery/jquery.forms.js}"></script>
+	<script th:src="@{/lib/lui/layui.all.js}"></script>
+	<script type="text/javascript">
+		$.fn.serializeObject = function() {
+			var o = {};
+			var a = this.serializeArray();
+			$.each(a, function() {
+				if (o[this.name] !== undefined) {
+					if (!o[this.name].push) {
+						o[this.name] = [ o[this.name] ];
+					}
+					o[this.name].push(this.value || '');
+				} else {
+					o[this.name] = this.value || '';
+				}
+			});
+			return o;
+		};
+        var active
+        var index=0;
+        var paramMap={};
+        var isOk=false;
+        var map={};
+        layui.use('element', function(){
+            var  element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+            //触发事件
+             active = {
+                 tabChange: function(tabId){
+                    //切换到指定Tab项
+                    element.tabChange('docDemoTabBrief', tabId); //切换到：权限分配
+
+                }
+            };
+            element.on('tab(docDemoTabBrief)', function(data){
+                //console.log(this); //当前Tab标题所在的原始DOM元素
+                //console.log(data.index); //得到当前Tab的所在下标
+                //console.log(data.elem); //得到当前的Tab大容器
+                index=data.index;
+                //alert(index);
+            });
+        });
+        var arrary;
+        $("#sysUserRoleForm").click(function(){
+            //$('input:checkbox:checked') 等同于 $('input[type=checkbox]:checked')
+            //意思是选择被选中的checkbox
+            arrary=new Array();
+            paramMap={};
+            $.each($('input:checkbox:checked'),function(){
+                //window.alert("你选了："+ $('input[type=checkbox]:checked').length+"个，其中有："+$(this).val());
+                //arrary.push($(this).val());
+                paramMap={
+                    "roleId":$(this).val()
+                }
+                arrary.push(paramMap)
+            });
+            map.userId=$("#userId").val();
+            map.list=arrary;
+            console.log(map)
+        });
+    </script>
+	<script type="text/javascript">
+		layui.laydate.render({
+			elem : '#date'
+		});
+		function doSave(fn) {
+			var data;
+			var url;
+            if(index==0){
+                url="edit";
+                data = $("#sysUserForm").serializeObject();
+                $.ajax(url, {
+                    method : "post",
+                    contentType : "application/json; charset=utf-8",
+                    data : JSON.stringify(data),
+                    success : function(data) {
+                        if (data) {
+                            parent.tips(1, "保存成功！");
+                            active.tabChange("roleTab");//切换tab页
+                            isOk=true;
+                            $(".layui-input").val("");
+                        } else {
+                            parent.tips(0, "保存信息失败！");
+                        }
+                    },
+                    error : function(e) {
+                        parent.tips(0, e);
+                    }
+                });
+            }else if(index==1){
+                url="editRole";
+                if(isOk || $("#userId").val()!=""){
+                    $.ajax(url, {
+                        method : "post",
+                        contentType : "application/json; charset=utf-8",
+                        data : JSON.stringify(map),
+                        success : function(data) {
+                            if (data) {
+                                parent.tips(1, "保存成功！");
+                                if(isOk){
+                                    fn.call();
+                                }
+                            } else {
+                                parent.tips(0, "保存信息失败！");
+                            }
+                        },
+                        error : function(e) {
+                            parent.tips(0, e);
+                        }
+                    });
+                }else{
+                    parent.tips(0, "提示：请先添加用户");
+                }
+
+            }
+
+
+		}
+	</script>
+<script>
+$(function(){
+	var state=$("div.state").html();
+	if(state=='1'){
+		$("div.state").html('启用');
+	}else{
+		$("div.state").html('未启用');
+	}
+
+	var status=$("div.status").html();
+    if(status=='0'){
+        $("div.status").html('离职');
+    }else if(status=='1'){
+        $("div.status").html('公出');
+    }else if(status=='2'){
+        $("div.status").html('出差');
+    }else if(status=='3'){
+        $("div.status").html('事假');
+    }else if(status=='4'){
+        $("div.status").html('病假');
+    }else if(status=='5'){
+        $("div.status").html('其他假');
+    }else if(status=='10'){
+        $("div.status").html('在职');
+    }
+});
+</script>
+</body>
+</html>

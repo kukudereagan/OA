@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" th:href="@{/lib/lui/css/layui.css}">
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+<div class="layui-container">
+<div th:html="${courseOffline.id}"></div>
+<div th:if="${edit}">
+</div>
+<form id="courseOfflineForm" class="layui-form" action="edit" method="post">
+    <input type="hidden" name="id" th:value="${courseOffline.id}"/>
+    <input type="hidden" class="imagePath" name="imagePath" th:value="${courseOffline.imagePath}"/>
+    
+    <div class="layui-form-item">
+        <label class="layui-form-label">图片</label>
+        <div class="layui-input-block">
+            <div class="layui-upload">
+                <button type="button" class="layui-btn" id="pic">
+  					<i class="layui-icon">&#xe67c;</i>上传图片</button>
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img" id="demo1">
+                    <p id="demoText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">标题</label>
+        <div th:if="${edit}" class="layui-input-block">
+            <input  type="text" name="title" lay-verify="title" autocomplete="off" th:value="${courseOffline.title}" placeholder="请输入标题" class="layui-input">
+        </div>
+        <div class="layui-form-mid" th:unless="${edit}" th:text="${courseOffline.title}"></div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">价格</label>
+        <div th:if="${edit}" class="layui-input-block">
+            <input type="number"  name="price" lay-verify="required" placeholder="请输入" th:value="${courseOffline.price}" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-form-mid" th:unless="${edit}" th:text="${courseOffline.price}"></div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">开始时间</label>
+            <div th:if="${edit}" class="layui-input-inline">
+                <input type="text"  name="startTime" id="date" lay-verify="date" th:value="${#dates.format(courseOffline.startTime, 'yyyy-MM-dd')}"
+                       placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid" th:unless="${edit}" th:text="${#dates.format(courseOffline.startTime, 'yyyy-MM-dd')}">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">有效时长</label>
+            <div th:if="${edit}" class="layui-input-inline">
+                <input type="number"  name="length" th:value="${courseOffline.length}" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid" th:text="${courseOffline.length}" th:unless="${edit}"></div>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">地址</label>
+        <div th:if="${edit}" class="layui-input-block">
+            <input type="text"  name="address" placeholder="请输入地址" th:value="${courseOffline.address}" class="layui-input"/>
+        </div>
+        <div class="layui-form-mid" th:unless="${edit}"  th:text="${courseOffline.address}"></div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">内容</label>
+        <div th:if="${edit}" class="layui-input-block">
+            <textarea class="layui-textarea" name="content" th:text="${courseOffline.content}">
+            </textarea>
+        </div>
+        <div class="layui-form-mid" th:unless="${edit}" th:text="${courseOffline.content}"></div>
+    </div>
+
+</form>
+</div>
+<script th:src="@{/lib/jquery/jquery.js}"></script>
+<script th:src="@{/lib/jquery/jquery.forms.js}"></script>
+<script th:src="@{/lib/lui/layui.all.js}"></script>
+<script type="text/javascript">
+    $.fn.serializeObject = function()
+    {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name] !== undefined) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+</script>
+<script type="text/javascript">
+    layui.laydate.render({
+        elem: '#date'
+    });
+    //layui.layedit.build('LAY_demo_editor');
+
+    function doSave(fn){
+
+        var data = $("#courseOfflineForm").serializeObject();
+
+        $.ajax("edit",{
+            method:"post",
+            contentType:"application/json; charset=utf-8",
+            data:JSON.stringify(data),
+            success:function(data) {
+                if(data) {
+                    parent.tips(1, "保存成功！");
+                    fn.call();
+                }else{
+                    parent.tips(0, "保存信息失败！");
+                }
+            },
+            error:function(e){
+                parent.tips(0,e);
+            }
+        });
+
+    }
+
+</script>
+
+	<script>
+		layui.use('upload', function() {
+			var upload = layui.upload;
+			//执行实例
+			var uploadInst = upload.render({
+				elem : '#pic' //绑定元素
+				,
+				url : 'upload' //上传接口
+				,
+				done: function(res){
+				    if(res.status == 1){
+				      $("#demo1").attr("src","/demo/"+res.data);
+				      $(".imagePath").val(res.data);
+				    }
+				  },
+				error: function(){
+					alert("上传失败");
+				}
+			});
+		});
+	</script>
+	
+	
+	<script>
+	 $(function(){
+		 var imagePath=$(".imagePath").val();
+		 if(imagePath!=""){
+			 $("#demo1").attr("src","/demo/"+imagePath);
+		 }
+	 });
+	</script>
+</body>
+</html>

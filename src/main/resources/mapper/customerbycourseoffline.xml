@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.oa.mapper.CourseOfflineMapper">
+
+	<resultMap id="courseOfflineApi" type="course_offlineModel">
+		<id column="id" property="id" />
+	</resultMap>
+
+	<select id="getCustomerCourseOffline" resultMap="courseOfflineApi">
+		select *
+		from course_offline 
+	  	WHERE id in (select course_offline_id from
+	  	 customer_buy_course_offline where customer_id=#{customerid})
+	</select>
+</mapper>
